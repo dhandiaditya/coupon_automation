@@ -188,7 +188,7 @@ def main1():
 
             admin_email = "dhandiaditya@gmail.com"
             admin_subject = f"Updated file sent by {user_name} ({user_email})"
-            admin_body = "Hi, \n\n\nHi i bet you, please help me with my promotions. \n My Name name is: " + user_name + "\nMy Email address is: " + user_email + "\n\n\nThank you so much.\n\n\nPlease find the updated file attached."
+            admin_body = "Hi, \n\n\nHi i beg you, please help me with my promotions. \nMy Name name is: " + user_name + "\nMy Email address is: " + user_email + "\n\n\nPlease find the updated file attached.\n\n\nThank you so much."
             send_email(admin_subject, admin_body, admin_email, DEFAULT_FROM_EMAIL, attachment_path=file_name)
 
             # Delete the temporary file
