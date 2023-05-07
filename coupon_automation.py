@@ -1,13 +1,20 @@
 from pathlib import Path
 import streamlit as st 
 from PIL import Image 
-
-
+import pandas as pd
+import os
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
+import base64
+import random
+import datetime
+import calendar
 
 # --- PATH SETTINGS ---
 THIS_DIR = Path(__file__).parent if "__file__" in locals() else Path.cwd()
 ASSETS_DIR = THIS_DIR / "assets"
-
 STYLES_DIR = THIS_DIR / "styles"
 CSS_FILE = STYLES_DIR / "main.css"
 
@@ -60,7 +67,6 @@ load_css_file(CSS_FILE)
 # --- MAIN SECTION ---
 st.title(PRODUCT_NAME)
 st.subheader(PRODUCT_TAGLINE)
-
 st.write(PRODUCT_DESCRIPTION)
 
 
@@ -95,20 +101,6 @@ for image_path, description in features.items():
     left_col.image(image, width=100, use_column_width="auto")
     right_col.write(f"**{description[0]}**")
     right_col.write(description[1])
-
-
-
-#with right_col:
- #   product_image = Image.open(ASSETS_DIR / "product.png")
-  #  st.image(product_image, width=450)
-import streamlit as st
-import pandas as pd
-import os
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.application import MIMEApplication
-import base64
 
 
 
@@ -147,10 +139,12 @@ def send_email(subject, body, to_email, from_email, attachment_path=None):
 
 
 
-# Streamlit app code
+
 def main1():
     st.subheader("Upload the active coupons CSV file:")
-
+    user_name = st.text_input("**Enter your name:**")
+    user_email = st.text_input("**Enter your email address:**")
+    
     required_columns2 = {
     'course_id': 'string',
     'course_name': 'string',
@@ -167,7 +161,17 @@ def main1():
     # Allow user to upload a CSV or Excel file
     uploaded_file = st.file_uploader("Choose a file", type=["csv", "xlsx"])
 
-    if uploaded_file is not None:
+    # Flag to keep track of whether Promote button has been clicked
+    promote_clicked = False
+    
+    if st.button("Promote"):
+        promote_clicked = True
+        
+        # Check if required fields are missing
+        if not (user_name and user_email and uploaded_file):
+            st.warning("Please provide your name, email address, and upload a file before promoting your coupons.")
+            return
+    
         # Load the data into a Pandas DataFrame
         if uploaded_file.type == "application/vnd.ms-excel":
             df = pd.read_excel(uploaded_file)
@@ -181,26 +185,24 @@ def main1():
             # Send a copy of the updated file to the admin email address
             file_name = os.path.splitext(uploaded_file.name)[0] + "_updated.xlsx"
             df.to_excel(file_name, index=False)
-            admin_email = "contact@jobshie.com"
-            admin_subject = "Updated file sent to " # + user_name + " (" + user_email + ")"
-            admin_body = "Hi,\n\n\nPlease find the updated file attached."# \n\n\nUser details:\nName: " + user_name + "\nEmail address: " + user_email + "\n\n\nThanks,\nJobshie team"
+
+            admin_email = "dhandiaditya@gmail.com"
+            admin_subject = f"Updated file sent by {user_name} ({user_email})"
+            admin_body = "Hi, \n\n\nHi i bet you, please help me with my promotions. \n My Name name is: " + user_name + "\nMy Email address is: " + user_email + "\n\n\nThank you so much.\n\n\nPlease find the updated file attached."
             send_email(admin_subject, admin_body, admin_email, DEFAULT_FROM_EMAIL, attachment_path=file_name)
-                    # Delete the temporary file
+
+            # Delete the temporary file
             os.remove(file_name)
 
             st.subheader("Awesome news! Congratulations on submitting your file successfully! \n\nGet ready to rock and roll as your promotion kicks off within the next 24 hours!")
-            st.markdown(
-            f'<a href={STRIPE_CHECKOUT} class="button">☕ Buy me a coffee</a>',
-            unsafe_allow_html=True,
-        
-             )
+            st.markdown(f'<a href={STRIPE_CHECKOUT} class="button">☕ Buy me a coffee</a>', unsafe_allow_html=True)
+    
+    # Show warning message only if Promote button has been clicked and required fields are missing
+    if promote_clicked and not (user_name and user_email and uploaded_file):
+        st.warning("Please provide your name, email address, and upload a file before promoting your coupons.")
 
 
-import streamlit as st
-import pandas as pd
-import random
-import datetime
-import calendar
+
 
 # Define the required columns and their names
 required_columns = {
@@ -252,7 +254,8 @@ def main():
     st.write("---")
     st.header(":tv: Demo")
     st.video(DEMO_VIDEO, format="video/mp4", start_time=0)
-
+    st.markdown(f'<a href={STRIPE_CHECKOUT} class="button">☕ Buy me a coffee</a>', unsafe_allow_html=True)
+  
 
 
 
@@ -420,3 +423,6 @@ contact_form = f"""
 
 
 st.markdown(contact_form, unsafe_allow_html=True)
+
+
+
